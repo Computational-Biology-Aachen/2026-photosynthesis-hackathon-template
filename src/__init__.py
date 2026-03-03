@@ -104,6 +104,9 @@ def load_iita_cowpea(data: Path) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFra
     # Sheet 1 contains MultiseQ data
     s1 = pd.read_excel(data / "cowpea-sansa.xlsx", sheet_name="Sheet 1")
 
+    # Format str(G1-G112) as int(1-112)
+    s1["GEN"] = s1["GEN"].str.slice(1).astype(int)
+
     # Sheet 2 contains genomic information
     s2 = pd.read_excel(data / "cowpea-sansa.xlsx", sheet_name="Sheet 2")
 

@@ -26,6 +26,7 @@ def _drop_into_df(df: pd.DataFrame, column: str) -> pd.DataFrame:
 
 
 def drop_na_multiple[*Ts](*containers: *Ts) -> tuple[*Ts]:
+    """Drop rows of multiple pandas containers if one of the entries is N/A."""
     mask = np.logical_and.reduce(
         [
             c.notna()
@@ -37,13 +38,21 @@ def drop_na_multiple[*Ts](*containers: *Ts) -> tuple[*Ts]:
     return tuple(cast(pd.Series, c)[mask] for c in containers)
 
 
-def load_jii_ambit(data: Path) -> NoReturn:
+def load_jii_ambit(
+    data: Path,
+    *,
+    load_local: bool = True,
+) -> NoReturn:
     """Load the multispeq data provided by the JII."""
+    _ = pd.read_json(data / "jii-ambit.json") if load_local else databricks.load_ambit()
+
     raise NotImplementedError
 
 
 def load_jii_multispeq(
     data: Path,
+    *,
+    load_local: bool = True,
 ) -> tuple[
     pd.DataFrame,
     pd.DataFrame,
@@ -56,9 +65,16 @@ def load_jii_multispeq(
     pd.DataFrame,
 ]:
     """Load the multispeq data provided by the JII."""
-    main = pd.read_json(
-        data / "multispeq.json", dtype={"measurement_time": float}
-    ).drop(
+    main = (
+        pd.read_json(
+            data / "jii-multispeq.json",
+            dtype={"measurement_time": float},
+        )
+        if load_local
+        else databricks.load_multispeq()
+    )
+
+    main = main.drop(
         columns=[
             "project_id",
             "user_id",
@@ -96,18 +112,20 @@ def load_jii_multispeq(
     )
 
 
-def load_iita_cowpea(data: Path) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def load_iita_cowpea(
+    data: Path,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Load the cowpea data provided by the IITA."""
     # MetaData explains variables of the other two sheets
-    desc = pd.read_excel(data / "cowpea-sansa.xlsx", sheet_name="MetaData")
+    desc = pd.read_excel(data / "iita-cowpea.xlsx", sheet_name="MetaData")
 
     # Sheet 1 contains MultiseQ data
-    s1 = pd.read_excel(data / "cowpea-sansa.xlsx", sheet_name="Sheet 1")
+    s1 = pd.read_excel(data / "iita-cowpea.xlsx", sheet_name="Sheet 1")
 
     # Format str(G1-G112) as int(1-112)
     s1["GEN"] = s1["GEN"].str.slice(1).astype(int)
 
     # Sheet 2 contains genomic information
-    s2 = pd.read_excel(data / "cowpea-sansa.xlsx", sheet_name="Sheet 2")
+    s2 = pd.read_excel(data / "iita-cowpea.xlsx", sheet_name="Sheet 2")
 
     return desc, s1, s2

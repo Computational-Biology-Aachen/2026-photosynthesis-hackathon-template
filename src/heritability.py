@@ -65,7 +65,7 @@ class Heritabilities:
 
     def plot(self) -> FigAxs:
         """Plot the results."""
-        fig, axs = fig_axs(nrows=3, figsize=(8, 3))
+        fig, axs = fig_axs(ncols=3, figsize=(8, 3))
         frame = self.as_frame()
 
         for ax, (name, s) in zip(axs, frame.items(), strict=True):

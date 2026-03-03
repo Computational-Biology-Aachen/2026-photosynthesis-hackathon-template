@@ -170,8 +170,8 @@ def fig_ax(
 
 def fig_axs(
     *,
-    nrows: int,
-    ncols: int = 1,
+    ncols: int,
+    nrows: int = 1,
     figsize: tuple[float, float] | None,
     grid: bool = True,
     sharex: bool = True,

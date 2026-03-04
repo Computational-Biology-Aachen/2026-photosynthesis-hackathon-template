@@ -21,7 +21,7 @@ from typing import TYPE_CHECKING, cast
 import numpy as np
 import pandas as pd
 from sklearn.feature_selection import f_oneway
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import ElasticNet, LinearRegression
 
 from src.plot import FigAxs, fig_axs
 
@@ -29,6 +29,7 @@ __all__ = [
     "Heritabilities",
     "Heritability",
     "heritability",
+    "heritability_elastic_net",
     "heritability_with_covariates",
 ]
 
@@ -154,12 +155,12 @@ def heritability(
         n_harmonic: float = n_gtypes / np.sum(1.0 / genotype_sizes)
         sigma2_genetic = max(0, (ms_between - ms_within) / n_harmonic)
         sigma2_environmental = ms_within
-        total_var = sigma2_genetic + sigma2_environmental
 
         # Additional info
         f_stat, p_value = f_oneway(*_splitby(variable, gtype))
         f_stat = float(f_stat[0])  # type: ignore
         p_value = float(p_value[0])  # type: ignore
+        total_var = sigma2_genetic + sigma2_environmental
 
         # Store results
         heritability_results[name] = Heritability(
@@ -199,6 +200,80 @@ def heritability_with_covariates(
 
     for name, variable in data.items():
         var_pred = LinearRegression().fit(env_factors, variable).predict(env_factors)
+        res_env = variable - var_pred
+
+        # Between-genotype variance (genetic variance) via residuals
+        grand_mean_residuals = res_env.mean()
+        genotype_means = res_env.groupby(gtype).mean()
+        genotype_sizes = res_env.groupby(gtype).size()
+        ss_between = np.sum(
+            genotype_sizes * (genotype_means - grand_mean_residuals) ** 2
+        )
+        ms_between = ss_between / (n_gtypes - 1)
+
+        # Within-genotype variance
+        ss_within = res_env.groupby(gtype).aggregate(
+            lambda x: np.sum(np.square(x - x.mean()))
+        )
+        # FIXME: why not -1 here?
+        ms_within: float = ss_within.sum() / (len(variable) - n_gtypes)
+
+        # Genetic variance
+        n_harmonic: float = n_gtypes / np.sum(1.0 / genotype_sizes)
+        sigma2_genetic = max(0, (ms_between - ms_within) / n_harmonic)
+        sigma2_residual = ms_within
+
+        # Additional info
+        f_stat, p_value = f_oneway(*_splitby(res_env, gtype))
+        f_stat = float(f_stat[0])  # type: ignore
+        p_value = float(p_value[0])  # type: ignore
+
+        ss_env = ((var_pred - variable.mean()) ** 2).sum()
+        sigma2_environmental = ss_env / (len(variable) - len(env_factors.columns) - 1)
+        total_var = sigma2_genetic + sigma2_environmental + sigma2_residual
+        total_var_adj = sigma2_genetic + sigma2_residual
+
+        # Store results
+        heritability_results[name] = Heritability(
+            heritability=_heritability(
+                sigma2_genetic,
+                total_var,
+            ),
+            heritability_adj=_heritability(
+                sigma2_genetic,
+                total_var_adj,
+            ),
+            genetic_variance=sigma2_genetic,
+            environmental_variance=sigma2_environmental,
+            residual_variance=sigma2_residual,
+            f_statistics=f_stat,
+            p_value=p_value,
+            ss_within=ss_within.sum(),
+            ss_between=ss_between,
+            ss_env=ss_env,
+        )
+
+    return Heritabilities(heritability_results)
+
+
+def heritability_elastic_net(
+    data: pd.DataFrame,
+    env_factors: pd.DataFrame,
+    gtype: pd.Series,
+) -> Heritabilities:
+    """Calculate heritability based on variances within and between genotypes.
+
+    Formula: H² = σ²_G / (σ²_G + σ²_E).
+    Where:
+    - σ²_G = genetic variance (between genotype variance)
+    - σ²_E = environmental variance (within genotype variance)
+
+    """
+    heritability_results = {}
+    n_gtypes = len(gtype.unique())
+
+    for name, variable in data.items():
+        var_pred = ElasticNet().fit(env_factors, variable).predict(env_factors)
         res_env = variable - var_pred
 
         # Between-genotype variance (genetic variance) via residuals

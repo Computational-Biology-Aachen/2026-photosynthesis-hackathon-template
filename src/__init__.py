@@ -5,15 +5,20 @@ from typing import TYPE_CHECKING, cast
 import numpy as np
 import pandas as pd
 
-from src import databricks, plot
-from src.heritability import heritability, heritability_with_covariates
+from src import _databricks, plot
+from src._heritability import (
+    heritability,
+    heritability_elastic_net,
+    heritability_with_covariates,
+)
 
 if TYPE_CHECKING:
     from pathlib import Path
 
 __all__ = [
-    "databricks",
+    "_databricks",
     "heritability",
+    "heritability_elastic_net",
     "heritability_with_covariates",
     "plot",
 ]
@@ -47,7 +52,7 @@ def load_jii_ambit(
     return (
         pd.read_csv(data / "jii-ambit.csv", index_col=0)
         if load_local
-        else databricks.load_ambit()
+        else _databricks.load_ambit()
     )
 
 
@@ -73,7 +78,7 @@ def load_jii_multispeq(
             dtype={"measurement_time": float},
         )
         if load_local
-        else databricks.load_multispeq()
+        else _databricks.load_multispeq()
     )
 
     main = main.drop(

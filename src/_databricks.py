@@ -1,5 +1,7 @@
 """Helper functions for direct interaction with databricks."""
 
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, NoReturn
 
 __all__ = ["load_ambit", "load_multispeq"]

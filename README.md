@@ -29,3 +29,7 @@ uv sync
 uv run jupyter lab  # or
 uv run jupyter notebook
 ```
+
+## Data
+
+[Check out the detailed description](./DATASETS.md)

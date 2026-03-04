@@ -1,3 +1,7 @@
+# temporary folders
+tmp/
+temp/
+
 # Python-generated files
 .ruff_cache/
 __pycache__/

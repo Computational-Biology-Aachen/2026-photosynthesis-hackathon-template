@@ -1,6 +1,6 @@
 """Common routines for data analyses."""
 
-from typing import TYPE_CHECKING, NoReturn, cast
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
 import pandas as pd
@@ -42,11 +42,13 @@ def load_jii_ambit(
     data: Path,
     *,
     load_local: bool = True,
-) -> NoReturn:
+) -> pd.DataFrame:
     """Load the multispeq data provided by the JII."""
-    _ = pd.read_json(data / "jii-ambit.json") if load_local else databricks.load_ambit()
-
-    raise NotImplementedError
+    return (
+        pd.read_csv(data / "jii-ambit.csv", index_col=0)
+        if load_local
+        else databricks.load_ambit()
+    )
 
 
 def load_jii_multispeq(
@@ -124,6 +126,7 @@ def load_iita_cowpea(
 
     # Format str(G1-G112) as int(1-112)
     s1["GEN"] = s1["GEN"].str.slice(1).astype(int)
+    s1 = s1.drop(columns=["S/N"])
 
     # Sheet 2 contains genomic information
     s2 = pd.read_excel(data / "iita-cowpea.xlsx", sheet_name="Sheet 2")

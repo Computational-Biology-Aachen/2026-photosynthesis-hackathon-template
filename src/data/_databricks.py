@@ -2,60 +2,51 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, NoReturn, cast
+from typing import TYPE_CHECKING, cast
 
-from pyspark.sql import functions as F  # noqa: N812
 from pyspark.sql.connect.session import SparkSession
-
-__all__ = ["VOLUME_PATH", "load_ambit", "load_cowpea_iita", "load_multispeq"]
 
 if TYPE_CHECKING:
     import pandas as pd
 
-VOLUME_PATH = "/Volumes/open_jii_data_hackathon/default/hackathon_data_volume/v2_data"
+CATALOG = "open_jii_data_hackathon.default"
 
 # NOTE: we ever only call the functions below when we determined this is not None
 # before, so for here this cast should be fine
 spark = cast(SparkSession, SparkSession.getActiveSession())
 
 
-def load_multispeq() -> pd.DataFrame:
-    """Load multispeq data from databricks."""
-    raise NotImplementedError
+def load(table: str) -> pd.DataFrame:
+    return spark.table(f"{CATALOG}.{table}").toPandas()
 
 
-def load_ambit() -> NoReturn:
-    """Load ambit data from databricks."""
-    raise NotImplementedError
+def load_grebbedijk() -> pd.DataFrame:
+    return load("grebbedijk_measurements")
 
 
-def _cowpea_iita_multispeq(*, add_metadata: bool = False) -> pd.DataFrame:
-    pdf = spark.read.parquet(f"{VOLUME_PATH}/cowpea_iita_measurements.parquet")
-
-    if add_metadata:
-        pdf = (
-            pdf.withColumn(
-                "project_description",
-                F.lit("IITA cowpea drought stress trial Nigeria 2020-2022"),
-            )
-            .withColumn("crop", F.lit("Cowpea"))
-            .withColumn("data_source", F.lit("MultispeQ"))
-        )
-
-    multispeq = pdf.toPandas().set_index("row_number", drop=True)
-    multispeq.index.name = None
-    return multispeq
+def load_bean_gart() -> pd.DataFrame:
+    return load("bean_gart_35462_35509")
 
 
-def _cowpea_iita_snp() -> pd.DataFrame:
-    snp = spark.read.parquet(f"{VOLUME_PATH}/cowpea_iita_snp.parquet")
-    return snp.toPandas()
+def load_barley_qtl() -> pd.DataFrame:
+    return load("barley_qtl_32593_32742")
 
 
-def load_cowpea_iita(
-    *, add_metadata: bool = False
-) -> tuple[pd.DataFrame, pd.DataFrame]:
-    return (
-        _cowpea_iita_multispeq(add_metadata=add_metadata),
-        _cowpea_iita_snp(),
-    )
+def load_aardaker() -> pd.DataFrame:
+    return load("aardaker_nergena_29273")
+
+
+def load_potato_ambit() -> tuple[pd.DataFrame, pd.DataFrame]:
+    return load("potato_ambyte_ambit"), load("potato_ambyte_ambit_silver")
+
+
+def load_barley_imagic() -> pd.DataFrame:
+    return load("barley_imagic_17237_18685")
+
+
+def load_barley_hvdrr() -> pd.DataFrame:
+    return load("barley_hvdrr_12922_16934")
+
+
+def load_cowpea_iita() -> tuple[pd.DataFrame, pd.DataFrame]:
+    return load("cowpea_iita_measurements"), load("cowpea_iita_snp")

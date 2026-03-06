@@ -19,20 +19,20 @@ def _drop_into_df(df: pd.DataFrame, column: str) -> pd.DataFrame:
     return new
 
 
-def load_jii_ambit(
+def load_potato_grebbedijk(
     data: Path,
     *,
     load_local: bool = True,
 ) -> pd.DataFrame:
     """Load the multispeq data provided by the JII."""
     return (
-        pd.read_csv(data / "jii-ambit.csv", index_col=0)
+        pd.read_csv(data / "01-potato-grebbedijk.csv", index_col=0)
         if load_local
         else _databricks.load_ambit()
     )
 
 
-def load_jii_multispeq(
+def load_potato_ambit(
     data: Path,
     *,
     load_local: bool = True,
@@ -50,7 +50,7 @@ def load_jii_multispeq(
     """Load the multispeq data provided by the JII."""
     main = (
         pd.read_json(
-            data / "jii-multispeq.json",
+            data / "05-potato-ambit.json",
             dtype={"measurement_time": float},
         )
         if load_local
@@ -95,21 +95,21 @@ def load_jii_multispeq(
     )
 
 
-def load_iita_cowpea(
+def load_cowpea_iita(
     data: Path,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Load the cowpea data provided by the IITA."""
     # MetaData explains variables of the other two sheets
-    desc = pd.read_excel(data / "iita-cowpea.xlsx", sheet_name="MetaData")
+    desc = pd.read_excel(data / "08-cowpea-iita.xlsx", sheet_name="MetaData")
 
     # Sheet 1 contains MultiseQ data
-    s1 = pd.read_excel(data / "iita-cowpea.xlsx", sheet_name="Sheet 1")
+    s1 = pd.read_excel(data / "08-cowpea-iita.xlsx", sheet_name="Sheet 1")
 
     # Format str(G1-G112) as int(1-112)
     s1["GEN"] = s1["GEN"].str.slice(1).astype(int)
     s1 = s1.drop(columns=["S/N"])
 
     # Sheet 2 contains genomic information
-    s2 = pd.read_excel(data / "iita-cowpea.xlsx", sheet_name="Sheet 2")
+    s2 = pd.read_excel(data / "08-cowpea-iita.xlsx", sheet_name="Sheet 2")
 
     return desc, s1, s2

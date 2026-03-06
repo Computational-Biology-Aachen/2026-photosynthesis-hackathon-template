@@ -4,6 +4,30 @@ All datasets are live in **`open_jii_data_hackathon.default`** on Databricks.
 
 ---
 
+## Key Terminology
+
+| Term            | Meaning                                                                              |
+| --------------- | ------------------------------------------------------------------------------------ |
+| **Phi2**        | Quantum yield of PSII — fraction of absorbed light used for photochemistry           |
+| **LEF**         | Linear Electron Flow — rate of electron transport through PSII (umol electrons/m2/s) |
+| **NPQt**        | Non-Photochemical Quenching — photoprotective energy dissipation as heat             |
+| **PhiNPQ**      | Fraction of absorbed light going to NPQ                                              |
+| **PhiNO**       | Fraction of absorbed light lost via non-regulated pathways (photodamage risk)        |
+| **qL**          | Fraction of open PSII centers (oxidized QA)                                          |
+| **SPAD**        | Relative chlorophyll content index                                                   |
+| **ECS**         | Electrochromic Shift — measure of thylakoid proton motive force                      |
+| **gH+**         | Proton conductance of ATP synthase                                                   |
+| **vH+**         | Proton flux through thylakoid membrane                                               |
+| **PSI centers** | Photosystem I redox states (active, open, over-reduced, oxidized)                    |
+| **P700**        | PSI reaction center chlorophyll — P700_DIRK measures its dark relaxation kinetics    |
+| **PIRK**        | Post-Illumination Rise in fluorescence Kinetics — indicator of cyclic electron flow  |
+| **PAR**         | Photosynthetically Active Radiation (400-700 nm, umol photons/m2/s)                  |
+| **VARIANT**     | Databricks column type storing the full raw JSON measurement trace                   |
+| **sample_raw**  | The complete raw measurement data from the MultispeQ device, stored as VARIANT       |
+
+
+---
+
 ## 1. Potato Grebbedijk — `grebbedijk_measurements`
 
 |                        |                                  |
@@ -316,26 +340,3 @@ The RIDES (Rapid Identification of Differential Efficiency of photosynthesis fro
 Two related protocols used across years. Year 1 (RIDES) captures the full parameter set including ECS, PSI, and P700. Year 2 (PSII measurements) uses fixed high actinic light (1500 umol/m2/s) and captures only PSII fluorescence parameters. When combined, ECS/PSI/P700 columns are NULL for Year 2 measurements.
 
 **29 computed values** (union of both protocols).
-
----
-
-## Key Terminology
-
-| Term            | Meaning                                                                              |
-| --------------- | ------------------------------------------------------------------------------------ |
-| **Phi2**        | Quantum yield of PSII — fraction of absorbed light used for photochemistry           |
-| **LEF**         | Linear Electron Flow — rate of electron transport through PSII (umol electrons/m2/s) |
-| **NPQt**        | Non-Photochemical Quenching — photoprotective energy dissipation as heat             |
-| **PhiNPQ**      | Fraction of absorbed light going to NPQ                                              |
-| **PhiNO**       | Fraction of absorbed light lost via non-regulated pathways (photodamage risk)        |
-| **qL**          | Fraction of open PSII centers (oxidized QA)                                          |
-| **SPAD**        | Relative chlorophyll content index                                                   |
-| **ECS**         | Electrochromic Shift — measure of thylakoid proton motive force                      |
-| **gH+**         | Proton conductance of ATP synthase                                                   |
-| **vH+**         | Proton flux through thylakoid membrane                                               |
-| **PSI centers** | Photosystem I redox states (active, open, over-reduced, oxidized)                    |
-| **P700**        | PSI reaction center chlorophyll — P700_DIRK measures its dark relaxation kinetics    |
-| **PIRK**        | Post-Illumination Rise in fluorescence Kinetics — indicator of cyclic electron flow  |
-| **PAR**         | Photosynthetically Active Radiation (400-700 nm, umol photons/m2/s)                  |
-| **VARIANT**     | Databricks column type storing the full raw JSON measurement trace                   |
-| **sample_raw**  | The complete raw measurement data from the MultispeQ device, stored as VARIANT       |

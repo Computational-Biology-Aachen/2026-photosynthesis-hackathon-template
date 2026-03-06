@@ -17,7 +17,17 @@ spark = cast(SparkSession, SparkSession.getActiveSession())
 
 
 def load(table: str) -> pd.DataFrame:
-    return spark.table(f"{CATALOG}.{table}").toPandas()
+    """Load a table as a pandas DataFrame, excluding the ``sample_raw`` column.
+
+    The ``sample_raw`` column contains the full raw MultispeQ measurement trace
+    stored as a VARIANT type, which is not supported by Databricks Connect.
+    To work with raw traces, query the table directly via PySpark::
+
+        spark.table("open_jii_data_hackathon.default.grebbedijk_measurements")
+    """
+    return spark.sql(
+        f"SELECT * EXCEPT(sample_raw) FROM {CATALOG}.{table}"  # noqa: S608
+    ).toPandas()
 
 
 def load_grebbedijk() -> pd.DataFrame:

@@ -14,6 +14,8 @@ if TYPE_CHECKING:
 
 VOLUME_PATH = "/Volumes/open_jii_data_hackathon/default/hackathon_data_volume/v2_data"
 
+# NOTE: we ever only call the functions below when we determined this is not None
+# before, so for here this cast should be fine
 spark = cast(SparkSession, SparkSession.getActiveSession())
 
 

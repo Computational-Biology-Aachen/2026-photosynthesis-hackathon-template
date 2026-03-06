@@ -19,5 +19,6 @@ wheels/
 *.tsv
 *.json
 *.pdf
+*.parquet
 *.xlsx
 *.xlsx#

@@ -1,0 +1,9 @@
+bundle:
+  name: photosynthesis-hackathon
+
+sync:
+  include:
+    - "*.ipynb"
+    - "advanced/*.ipynb"
+    - "src/**/*.py"
+    - "data/*.parquet"

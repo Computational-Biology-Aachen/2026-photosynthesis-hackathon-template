@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import cast
+from typing import Any, cast
 
 import numpy as np
 import pandas as pd
@@ -23,7 +23,7 @@ __all__ = [
 ]
 
 
-def drop_na_multiple[*Ts](*containers: *Ts) -> tuple[*Ts]:
+def drop_na_multiple(*containers: Any) -> tuple[Any, ...]:
     """Drop rows of multiple pandas containers if one of the entries is N/A."""
     mask = np.logical_and.reduce(
         [

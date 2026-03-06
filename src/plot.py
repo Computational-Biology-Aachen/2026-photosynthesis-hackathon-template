@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Iterator
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Literal, cast, overload
+from typing import TYPE_CHECKING, Literal, Union, cast, overload
 
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
@@ -74,10 +74,10 @@ class Axs:
         return cast(Axes, self.axs[row_col])
 
 
-type FigAx = tuple[Figure, Axes]
-type FigAxs = tuple[Figure, Axs]
+FigAx = tuple[Figure, Axes]
+FigAxs = tuple[Figure, Axs]
 
-type Linestyle = Literal[
+Linestyle = Literal[
     "solid",
     "dotted",
     "dashed",
@@ -85,9 +85,9 @@ type Linestyle = Literal[
 ]
 
 
-type RGB = tuple[float, float, float]
-type RGBA = tuple[float, float, float, float]
-type Color = str | RGB | RGBA
+RGB = tuple[float, float, float]
+RGBA = tuple[float, float, float, float]
+Color = Union[str, RGB, RGBA]
 
 
 def add_grid(ax: Axes) -> Axes:

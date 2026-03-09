@@ -6,6 +6,20 @@ from typing import TYPE_CHECKING, cast
 
 from pyspark.sql.connect.session import SparkSession
 
+__all__ = [
+    "CATALOG",
+    "load",
+    "load2",
+    "load_aardaker",
+    "load_barley_hvdrr",
+    "load_barley_imagic",
+    "load_barley_qtl",
+    "load_bean_gart",
+    "load_cowpea_iita",
+    "load_grebbedijk",
+    "load_potato_ambit",
+]
+
 if TYPE_CHECKING:
     import pandas as pd
 
@@ -30,6 +44,20 @@ def load(table: str) -> pd.DataFrame:
     ).toPandas()
 
 
+def load2(table: str) -> pd.DataFrame:
+    """Load a table as a pandas DataFrame, excluding the ``sample_raw`` column.
+
+    The ``sample_raw`` column contains the full raw MultispeQ measurement trace
+    stored as a VARIANT type, which is not supported by Databricks Connect.
+    To work with raw traces, query the table directly via PySpark::
+
+        spark.table("open_jii_data_hackathon.default.grebbedijk_measurements")
+    """
+    return spark.sql(
+        f"SELECT * FROM {CATALOG}.{table}"  # noqa: S608
+    ).toPandas()
+
+
 def load_grebbedijk() -> pd.DataFrame:
     return load("grebbedijk_measurements")
 
@@ -47,7 +75,7 @@ def load_aardaker() -> pd.DataFrame:
 
 
 def load_potato_ambit() -> tuple[pd.DataFrame, pd.DataFrame]:
-    return load("potato_ambyte_ambit"), load("potato_ambyte_ambit_silver")
+    return load2("potato_ambyte_ambit"), load("potato_ambyte_ambit_silver")
 
 
 def load_barley_imagic() -> pd.DataFrame:
@@ -59,4 +87,4 @@ def load_barley_hvdrr() -> pd.DataFrame:
 
 
 def load_cowpea_iita() -> tuple[pd.DataFrame, pd.DataFrame]:
-    return load("cowpea_iita_measurements"), load("cowpea_iita_snp")
+    return load2("cowpea_iita_measurements"), load2("cowpea_iita_snp")

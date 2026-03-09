@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import pandas as pd
 
@@ -15,6 +15,32 @@ try:
     _IN_DATABRICKS = SparkSession.getActiveSession() is not None
 except Exception:
     _IN_DATABRICKS = False
+
+CATALOG = "open_jii_data_hackathon.default"
+
+
+def in_databricks() -> bool:
+    """Return True when running on a Databricks cluster."""
+    return _IN_DATABRICKS
+
+
+def load_table(data: Path, table: str) -> Any:
+    """Load a table as a PySpark DataFrame (Databricks) or Polars DataFrame (local).
+
+    Use this when you want to work with the native framework rather than pandas.
+    On Databricks the ``sample_raw`` VARIANT column is included (queryable via
+    Spark SQL); locally the full parquet is read into Polars.
+    """
+    if _IN_DATABRICKS:
+        from pyspark.sql.connect.session import SparkSession
+
+        spark = SparkSession.getActiveSession()
+        assert spark is not None  # noqa: S101
+        return spark.table(f"{CATALOG}.{table}")
+
+    import polars as pl
+
+    return pl.read_parquet(data / f"{table}.parquet")
 
 
 def _load(data: Path, table: str) -> pd.DataFrame:

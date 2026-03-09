@@ -7,7 +7,7 @@ from typing import Any, cast
 import numpy as np
 import pandas as pd
 
-from src import data, plot
+from src import data, plot, protocol
 from src._heritability import (
     heritability,
     heritability_elastic_net,
@@ -20,6 +20,7 @@ __all__ = [
     "heritability_elastic_net",
     "heritability_with_covariates",
     "plot",
+    "protocol",
 ]
 
 
